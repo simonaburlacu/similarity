@@ -883,7 +883,7 @@ def _list_valid_filenames_in_directory(directory, white_list_formats,
                 classes.append(class_indices[subdir])
                 # add filename relative to directory
                 absolute_path = fname#os.path.join(root, fname)
-                filenames.append(os.path.relpath(absolute_path, basedir))
+                filenames.append(directory+"\\"+absolute_path)
             else:
                 print (fname+" is not valid")
     return classes, filenames
@@ -967,7 +967,7 @@ class DirectoryIterator(Iterator):
         white_list_formats = {'png', 'jpg', 'jpeg', 'bmp', 'ppm'}
 
         # first, count the number of samples and classes
-        self.samples = 0
+        self.samples = 1628
 
         if not classes:
             classes = []
@@ -981,9 +981,9 @@ class DirectoryIterator(Iterator):
         function_partial = partial(_count_valid_files_in_directory,
                                    white_list_formats=white_list_formats,
                                    follow_links=follow_links)
-        self.samples = sum(pool.map(function_partial,
-                                    (os.path.join(directory, subdir)
-                                     for subdir in classes)))
+        # self.samples = sum(pool.map(function_partial,
+        #                             (os.path.join(directory, subdir)
+        #                              for subdir in classes)))
 
         print('Found %d images belonging to %d classes.' % (self.samples, self.num_class))
 
@@ -1021,7 +1021,7 @@ class DirectoryIterator(Iterator):
         # build batch of image data
         for i, j in enumerate(index_array):
             fname = self.filenames[j]
-            img = load_img(os.path.join(self.directory, fname),
+            img = load_img(fname,
                            grayscale=grayscale,
                            target_size=self.target_size)
             x = img_to_array(img, data_format=self.data_format)

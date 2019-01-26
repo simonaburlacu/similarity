@@ -1,11 +1,75 @@
-import glob
-import json
-import random
-import csv
 import os
 import re
 import argparse
 import numpy as np
+from shutil import copyfile
+import random
+
+imgs_dir="G:\\LicentaSimona\\dataset\\scrapping\\"
+imgs_dir2="G:\\LicentaSimona\\dataset\\cropsScrapping\\"
+imgs_no_background="G:\\LicentaSimona\\dataset\\training\\big_sets\\all_white_background_dress\\"
+imgs_scrapping="G:\\LicentaSimona\\dataset\\scrapping\\"
+triplets_scrapping="G:\\LicentaSimona\\tripletsScrapping.csv"
+
+def move_imgs(src,dest):
+        for file in os.listdir(src):
+            img_src=src+file
+            if(file.find("_crop0")!=-1):
+                file_r = file.replace("_crop0","")
+            if(file.find("_crop1") != -1):
+                file_r = file.replace("_crop1", "")
+            if(file.find("_crop2") != -1):
+                file_r = file.replace("_crop2", "")
+            if(file.find("_crop3") != -1):
+                file_r = file.replace("_crop3", "")
+            img_dest = src+file_r
+            copyfile(img_src, img_dest)
+
+move_imgs(imgs_dir2, imgs_dir2)
+
+def rename_imgs_from_scrapping(src_imgs_directory, dest_imgs_directory,neg_images):
+    for dir in os.listdir(src_imgs_directory):
+        dir_name=dir
+        count=0
+        for file in os.listdir(src_imgs_directory+"\\"+dir_name):
+            src=src_imgs_directory+"\\"+dir_name+"\\"+file
+            if count==0:
+                print(file)
+                query=dest_imgs_directory+"\\"+dir_name+"\\"+"0_"+dir_name+"_q"+".jpg"
+                copyfile(src, query)
+                count = count + 1
+            else:
+                count=count+1
+                pos = dest_imgs_directory + "\\"+dir_name+"\\"+ str(count)+"_" + dir_name+"_p_.jpg"
+                copyfile(src, pos)
+                random_img = random.choice(os.listdir(neg_images))
+                print(random_img)
+                dest_neg = dest_imgs_directory + "\\"+dir_name+"\\"+ str(count)+"_" + dir_name+"_n_.jpg"
+                copyfile(neg_images+random_img, dest_neg)
+
+def generate_triplets_from_scrapping(src_imgs_directory, triplets_file):
+    f = open(triplets_file, "a")
+    for dir in os.listdir(src_imgs_directory):
+        dir_name=dir
+        count=0
+        query = ""
+        for file in os.listdir(src_imgs_directory+"\\"+dir_name):
+            if count==0:
+                query="0_"+dir_name+"_q"+".jpg"
+                pos = str(count) + "_" + dir_name + "_p_.jpg"
+                neg = str(count) + "_" + dir_name + "_n_.jpg"
+                print(query,pos,neg)
+                f.write(query+","+pos+","+neg+"\n")
+                count = count + 1
+            else:
+                count=count+1
+                pos = str(count) + "_" + dir_name + "_p_.jpg"
+                neg = str(count) + "_" + dir_name + "_n_.jpg"
+                f.write(query + "," + pos + "," + neg + "\n")
+    f.close()
+
+
+#generate_triplets_from_scrapping(imgs_dir2, triplets_scrapping)
 
 def list_pictures(directory, ext='jpg|jpeg|bmp|png|ppm'):
     return [os.path.join(root, f)

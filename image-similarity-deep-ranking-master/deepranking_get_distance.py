@@ -103,6 +103,6 @@ image2 = np.expand_dims(image2, axis = 0)
 embedding2 = model.predict([image2,image2,image2])[0]
 
 distance = sum([(embedding1[idx] - embedding2[idx])**2 for idx in range(len(embedding1))])**(0.5)
-
+#squared_euclidian_distance = sum([(embedding1[idx] - embedding2[idx])**2 for idx in range(len(embedding1))])
 print (distance)
 
